@@ -14,6 +14,7 @@ import com.ancientstudents.backend.tables.employeeData.EmployeeDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -37,18 +38,12 @@ public class EmployeeController {
     Employee newEmployee(@RequestBody Employee data){
         if(data == null) return null;
 
-        Employee emp = new Employee();
-        emp.setEmployeeData(getEmployeeDataById(data.getEmployeeData().getId()));
-        emp.setDepartment(getDepartmentById(data.getDepartment().getId()));
-        emp.setDesignation(getDesignationById(data.getDesignation().getId()));
+        data.setEmploymentStartDate(data.getEmploymentStartDate());
+        data.setStatus(EmployeeStatus.OFFLINE);
+        data.setCreatedAt(new Date());
+        data.setLastUpdated(new Date());
 
-        emp.setEmpNum(data.getEmpNum());
-        emp.setEmployeeType(data.getEmployeeType());
-        emp.setStatus(data.getStatus());
-        emp.setCreatedAt(new Date());
-        emp.setLastUpdated(new Date());
-
-        return employeeRepository.save(emp);
+        return employeeRepository.save(data);
     }
 
     @GetMapping("/employee")
@@ -68,21 +63,26 @@ public class EmployeeController {
         if(id == null) return null;
         return employeeRepository.findById(id)
                 .map(employee -> { 
- 
-                    EmployeeData oldEmpData = newEmployee.getEmployeeData();
-                    EmployeeData newEmpData = updateEmployeeData(oldEmpData, oldEmpData.getId());
-                    employee.setEmployeeData(newEmpData);
-                    
+                    employee.setEmployeeData(newEmployee.getEmployeeData());
                     employee.setDepartment(getDepartmentById(newEmployee.getDepartment().getId()));
                     employee.setDesignation(getDesignationById(newEmployee.getDesignation().getId()));
-
-                    employee.setEmpNum(newEmployee.getEmpNum());
-                    employee.setEmployeeData(newEmployee.getEmployeeData());
+                    // Employee Metrics
                     employee.setEmployeeType(newEmployee.getEmployeeType());
+                    employee.setHourlyRate(newEmployee.getHourlyRate());
                     employee.setStatus(newEmployee.getStatus());
+
+                    // Employee identifications
+                    employee.setBankAccountDetails(newEmployee.getBankAccountDetails());
+                    employee.setTaxIdentification(newEmployee.getTaxIdentification());
+                    employee.setSocialSecurity(newEmployee.getSocialSecurity());
+                    employee.setPhilhealth(newEmployee.getPhilhealth());
+
+                    // Employement Date
+                    employee.setEmploymentStartDate(newEmployee.getEmploymentStartDate());
+                    employee.setEmploymentEndDate(newEmployee.getEmploymentEndDate());
+
                     employee.setCreatedAt(newEmployee.getCreatedAt());
                     employee.setLastUpdated(new Date());
-                    System.out.println(employee);
                     return employeeRepository.save(employee);
                 }).orElseThrow(()->new EmployeeNotFoundException(id));
     }
@@ -105,6 +105,8 @@ public class EmployeeController {
         return topEmployee;
     }
 
+    // Manual operation for Employee
+
     private Designation getDesignationById( Long id){
         if(id == null) return null;
         return designationRepository.findById(id)
@@ -123,27 +125,4 @@ public class EmployeeController {
                 .orElseThrow(()->new DataEmployeeNotFoundException(id));
     }
     
-     private EmployeeData updateEmployeeData(EmployeeData newEmployee, Long id){
-        if(id == null) return null;
-        return dataEmployeeRepository.findById(id)
-            .map(employee -> {
-                employee.setFirstname(newEmployee.getFirstname());
-                employee.setMiddlename(newEmployee.getMiddlename());
-                employee.setLastname(newEmployee.getLastname());
-
-                employee.setBirthday(newEmployee.getBirthday());
-                employee.setContact(newEmployee.getContact());
-                employee.setEmail(newEmployee.getEmail());
-                employee.setGender(newEmployee.getGender());
-
-                employee.setAddressLine(newEmployee.getAddressLine());
-                employee.setBarangay(newEmployee.getBarangay()); 
-                employee.setProvince(newEmployee.getBarangay());
-                employee.setCountry(newEmployee.getCountry());
-                employee.setCreatedAt(newEmployee.getCreatedAt());
-                employee.setLastUpdated(new Date());
-                return dataEmployeeRepository.save(employee);
-            }).orElseThrow(()->new DataEmployeeNotFoundException(id));
-    }
-
 }

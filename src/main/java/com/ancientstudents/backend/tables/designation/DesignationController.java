@@ -42,6 +42,10 @@ public class DesignationController {
         return designationRepository.findById(id)
                 .map(designation -> {
                     designation.setDesignationName(newDesignation.getDesignationName());
+                    designation.setStatus(newDesignation.getStatus());
+                    designation.setBreakHourLimit(newDesignation.getBreakHourLimit());
+                    designation.setLimitHolyDay(newDesignation.getLimitHolyDay());
+                    designation.setLeavelimit(newDesignation.getLeavelimit());
                     designation.setCreatedAt(newDesignation.getCreatedAt());
                     designation.setLastUpdated(new Date());
                     return designationRepository.save(designation);

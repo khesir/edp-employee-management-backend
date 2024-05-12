@@ -24,8 +24,8 @@ public class Department {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "departmentName")
-    private String departmentName;
+    @Column(name = "department_name")
+    private String name;
     private String status;
 
     @Temporal(TemporalType.TIMESTAMP)

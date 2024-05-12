@@ -1,6 +1,7 @@
 package com.ancientstudents.backend.security.auth;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 
@@ -9,8 +10,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
+import com.ancientstudents.backend.exception.EmployeeNotFoundException;
 import com.ancientstudents.backend.security.JwtService;
+import com.ancientstudents.backend.tables.employee.Employee;
+import com.ancientstudents.backend.tables.employee.EmployeeRepository;
 import com.ancientstudents.backend.tables.token.Token;
 import com.ancientstudents.backend.tables.token.TokenRepository;
 import com.ancientstudents.backend.tables.token.TokenType;
@@ -36,28 +41,19 @@ public class AuthenticationService {
     private JwtService jwtService;
     @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    private EmployeeRepository employeeRepository;
 
-    public AuthenticationResponse register(RegisterRequest request){
+    public ResponseEntity<?> register(RegisterRequest request){
         var user = User.builder()
-            .firstname(request.getFirstname())
-            .lastname(request.getLastname())
             .email(request.getEmail())
             .password(passwordEncoder.encode(request.getPassword()))
             .role(request.getRole())
             .build();
-        var savedUser = userRepository.save(user);
-        var jwtToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
-        
-        saveUserToken(savedUser, jwtToken);
-        return AuthenticationResponse.builder()
-                .user(savedUser.getId())
-                .accessLevel(savedUser.getRole().toString())
-                .accessToken(jwtToken)
-                .refreshToken(refreshToken)
-                .build();
-    }
+        userRepository.save(user);
 
+        return ResponseEntity.ok().body("User Created");
+    }
     public AuthenticationResponse authenticate(AuthenticationRequest request){
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
@@ -72,7 +68,8 @@ public class AuthenticationService {
         saveUserToken(user, jwtToken);
 
         return AuthenticationResponse.builder()
-            .user(user.getId())
+
+            .user(user.getEmail())
             .accessLevel(user.getRole().toString())
             .accessToken(jwtToken)
             .refreshToken(refreshToken) 
@@ -134,4 +131,10 @@ public class AuthenticationService {
             }
         }
     }
+    Employee getEmployeeById(@PathVariable Long id){
+        if(id == null) return null;
+        return employeeRepository.findById(id)
+                .orElseThrow(()->new EmployeeNotFoundException(id));
+    }
+
 }

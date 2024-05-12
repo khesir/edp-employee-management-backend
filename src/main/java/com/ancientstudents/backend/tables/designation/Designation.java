@@ -2,7 +2,6 @@ package com.ancientstudents.backend.tables.designation;
 
 import java.util.Date;
 
-
 import com.ancientstudents.backend.utils.CustomDateDeserializer;
 import com.ancientstudents.backend.utils.CustomDateSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -28,6 +27,15 @@ public class Designation {
     @Column(name = "designation_name")
     private String designationName;
     private String status;
+    @Column(name = "break_hour_limit")
+    private double BreakHourLimit;
+    
+    @Column(name = "holyday_limit")
+    private int LimitHolyDay;
+
+    @Column(name = "leave_limit")
+    private int leavelimit;
+
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = CustomDateSerializer.class)
     @JsonDeserialize(using = CustomDateDeserializer.class)
@@ -39,5 +47,4 @@ public class Designation {
     @JsonDeserialize(using = CustomDateDeserializer.class)
     @Column(name = "last_updated")
     private Date lastUpdated;
-
 }

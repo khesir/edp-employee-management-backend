@@ -30,6 +30,7 @@ public class EmployeeData {
     
     private String birthday;
     private String contact;
+    @Column(unique = true)
     private String email;
     private String gender;
 

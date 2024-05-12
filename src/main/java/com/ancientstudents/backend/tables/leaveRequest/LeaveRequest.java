@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -31,7 +33,8 @@ public class LeaveRequest {
     @ManyToOne
     @JoinColumn(name="employee_id", referencedColumnName = "id")
     private Employee employee;
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private LeaveStatus status;
     private String comment;
     private String leaveType;
 
@@ -58,6 +61,10 @@ public class LeaveRequest {
     private Date lastUpdated;
     
 }
-
+enum LeaveStatus {
+    APPROVED,
+    DECLINED,
+    PENDING,
+}
 
 

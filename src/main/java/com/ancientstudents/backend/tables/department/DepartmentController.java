@@ -12,6 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 public class DepartmentController {
+    
     @Autowired
     private DepartmentRepository departmentRepository;
 
@@ -40,7 +41,7 @@ public class DepartmentController {
         if(id == null) return null;
         return departmentRepository.findById(id)
                 .map(department -> {
-                    department.setDepartmentName(newDepartment.getDepartmentName());
+                    department.setName(newDepartment.getName());
                     department.setStatus(newDepartment.getStatus());
                     department.setCreatedAt(newDepartment.getCreatedAt());
                     department.setLastUpdated(new Date());

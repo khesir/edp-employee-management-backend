@@ -1,6 +1,8 @@
 package com.ancientstudents.backend.security;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -19,6 +21,7 @@ import com.ancientstudents.backend.tables.user.UserRepository;
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
+  @Autowired
   private final UserRepository repository;
 
   @Bean

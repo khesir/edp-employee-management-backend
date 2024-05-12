@@ -7,7 +7,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.ancientstudents.backend.tables.token.Token;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -35,8 +37,7 @@ public class User implements UserDetails {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
-  private String firstname;
-  private String lastname;
+  @Column(unique = true)
   private String email;
   private String password;
 
@@ -81,6 +82,8 @@ public class User implements UserDetails {
     return true;
   }
 }
+
+
 // @Entity
 // @Table(name="user")
 // @Data
@@ -98,6 +101,8 @@ public class User implements UserDetails {
 //     // @JoinTable(name="user_departments", joinColumns = @JoinColumn(name="user_id",referencedColumnName = "id"),
 //     //                 inverseJoinColumns = @JoinColumn(name =  "department_id", referencedColumnName = "id"))
 //     // private List<Department> department =  new ArrayList<>();
+
+
 // @ManyToMany( fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 // @JoinTable(name="user_departments", joinColumns = @JoinColumn(name="user_id",referencedColumnName = "id"),
 //                 inverseJoinColumns = @JoinColumn(name =  "department_id", referencedColumnName = "id"))
