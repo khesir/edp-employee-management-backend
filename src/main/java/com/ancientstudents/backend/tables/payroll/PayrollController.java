@@ -10,7 +10,6 @@ import com.ancientstudents.backend.tables.signatory.SignatoryRepository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +18,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RestController
@@ -41,6 +44,7 @@ public class PayrollController {
         x.setSignatory(getSignatoryById(newPayroll.getSignatory().getId()));
         x.setStart(newPayroll.getStart());
         x.setEnd(newPayroll.getEnd());
+        x.setStatus(PayrollStatus.INACTIVE);
         x.setPayrollDate(newPayroll.getPayrollDate());
         x.setEmployee(newPayroll.getEmployee());
         x.setCreatedAt(new Date());
@@ -75,6 +79,7 @@ public class PayrollController {
                     // Duration
                     payroll.setStart(newPayroll.getStart());
                     payroll.setEnd(newPayroll.getEnd());
+                    payroll.setStatus(newPayroll.getStatus());
                     
                     payroll.setCreatedAt(newPayroll.getCreatedAt());
                     payroll.setLastUpdated(new Date());
@@ -108,6 +113,21 @@ public class PayrollController {
         return ResponseEntity.ok().build();
     }
 
+    @RequestMapping(value = "payroll/fetch", method=RequestMethod.GET)
+    ResponseEntity<?> getPayrollByEmployee(@RequestParam(value ="empId") String empId,@RequestParam(value = "status") String status){
+        List<Payroll> allData = payrollRepository.findAll();
+        Employee employee = getEmployeeById(Long.parseLong(empId));
+        Payroll found = new Payroll();
+        for(Payroll p : allData){
+
+            if(p.getStatus().toString().equals(status) && p.getEmployee().contains(employee)){
+                found = p;
+            }
+
+        }
+ 
+        return ResponseEntity.ok(found);
+    }
     @RequestMapping(value = "payroll/remove", method=RequestMethod.GET)
     ResponseEntity<?> removeEmployeeInPayroll(@RequestParam(value ="empId") String empId,@RequestParam(value ="payrollID") String payrollID){
         Payroll payroll = getPayrollById( Long.parseLong(payrollID));
@@ -123,6 +143,7 @@ public class PayrollController {
         return ResponseEntity.ok().build();
     }
 
+
     @RequestMapping(value = "payroll/notInPayroll", method=RequestMethod.GET)
     List<Employee> findAllNotInPayroll(@RequestParam(value ="id") Long id){
         List<Employee> employee = getAllEmployees();
@@ -136,6 +157,7 @@ public class PayrollController {
        return filterEmployees;
     } 
      
+
     Signatory getSignatoryById( Long id){
         if(id == null) return null;
         return signatoryRepository.findById(id)

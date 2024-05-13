@@ -12,13 +12,14 @@ import com.ancientstudents.backend.tables.employeeData.EmployeeData;
 import com.ancientstudents.backend.tables.employeeData.EmployeeDataRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api")
@@ -96,15 +97,21 @@ public class EmployeeController {
         employeeRepository.deleteById(id);
         return "Employee with id " + id + " has been deleted successfully.";
     }
- 
-    @RequestMapping(value = "employee/top", method=RequestMethod.GET)
-    public Page<Employee> requestMethodName(@RequestParam(value ="count") String count) {
-        PageRequest pageRequest = PageRequest.of(0,Integer.valueOf(count));
-        Page<Employee> topEmployee = employeeRepository.findAll(pageRequest);
-
-        return topEmployee;
+    @RequestMapping(value = "employee/fetch", method=RequestMethod.GET)
+    Employee findEmployeeByEmail(@RequestParam(value = "email") String param) {
+        List<Employee> allemp = employeeRepository.findAll();
+        Employee found = new Employee();
+       
+        for(Employee e : allemp){
+            System.out.println(e.getEmployeeData().getEmail()+ " "+param);
+            if(e.getEmployeeData().getEmail().equals(param)){
+                found = e;
+                break;
+            }
+        }
+        return found;
     }
-
+    
     // Manual operation for Employee
 
     private Designation getDesignationById( Long id){

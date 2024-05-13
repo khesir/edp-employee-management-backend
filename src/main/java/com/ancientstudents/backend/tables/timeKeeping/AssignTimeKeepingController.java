@@ -1,16 +1,20 @@
 package com.ancientstudents.backend.tables.timeKeeping;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.ancientstudents.backend.exception.EmployeeNotFoundException;
+import com.ancientstudents.backend.exception.PayrollNotFoundException;
 import com.ancientstudents.backend.exception.PayslipNotFoundException;
 import com.ancientstudents.backend.tables.employee.Employee;
 import com.ancientstudents.backend.tables.employee.EmployeeRepository;
+import com.ancientstudents.backend.tables.payroll.Payroll;
+import com.ancientstudents.backend.tables.payroll.PayrollRepository;
 
 @RestController
 @RequestMapping("/api")
@@ -18,13 +22,24 @@ public class AssignTimeKeepingController {
     
     @Autowired
     private  AssignTimeKeepingRepository  assignTimeKeepingRepository;
+
     @Autowired
     private EmployeeRepository employeeRepository;
+    @Autowired
+    private PayrollRepository payrollRepository;
+    @Autowired
+    private TimeKeepingRepository timeKeepingRepository;
+
 
     @PostMapping("/assign/time-keeping")
     AssignTimeKeeping newtTimeKeeping(@RequestBody AssignTimeKeeping newAssignTimeKeeping){
         if(newAssignTimeKeeping == null ) return null;
-
+        
+        System.out.println(newAssignTimeKeeping);
+        newAssignTimeKeeping.setEmployee(getEmployeeById(newAssignTimeKeeping.getEmployee().getId()));
+        newAssignTimeKeeping.setPayroll(getPayrollById(newAssignTimeKeeping.getPayroll().getId()));
+        newAssignTimeKeeping.setTimeKeeping(getTimeKeepingById(newAssignTimeKeeping.getTimeKeeping().getId()));
+        newAssignTimeKeeping.setWorkDate(new Date());
         return assignTimeKeepingRepository.save(newAssignTimeKeeping);
     }
 
@@ -51,6 +66,7 @@ public class AssignTimeKeepingController {
                     return assignTimeKeepingRepository.save(atk);
                 }).orElseThrow(null);
     }
+
     @DeleteMapping("/assign/time-keeping/{id}")
     String deletePayslip(@PathVariable Long id){
         if(id == null) return null;
@@ -61,12 +77,11 @@ public class AssignTimeKeepingController {
         return "AssignedTimeKeeping with id " + id + " has been deleted successfully.";
     }
 
-    @SuppressWarnings("unlikely-arg-type")
-    @RequestMapping("/assign/time-keeping/data")
+    @RequestMapping(value = "/assign/time-keeping/data", method = RequestMethod.GET)
     public ResponseEntity<?> getAssignTimeKeepByType(
         @RequestParam(value="prID") Long prID,
         @RequestParam(value="empId") Long empId, 
-        @RequestParam(value = "type") String type
+        @RequestParam(value = "type",required = false) String type
         ){
         
         List<AssignTimeKeeping> data = assignTimeKeepingRepository.findAll();
@@ -74,15 +89,32 @@ public class AssignTimeKeepingController {
         for(AssignTimeKeeping as : data){
             
             if(as.getPayroll().getId() == prID && as.getEmployee().getId()== empId){
-                
-                if(as.getType().equals(type)){
+                if(type == null){
+                    filteredData.add(as);
+                } else if(as.getType().toString().equals(type)){
                     filteredData.add(as);
                 }
                 
             }
         }
         // Filter all Data under Payroll id with empID and varietyy of type such as "OVERTIME", "REGULAR", "VACATION"
-
         return ResponseEntity.ok(filteredData);
     }
+
+    // Temporary Solution I have no idea how springboot deals with dependecies and component
+
+    Payroll getPayrollById(Long id){
+        if(id == null) return null;
+        return payrollRepository.findById(id)
+                .orElseThrow(()->new PayrollNotFoundException(id));
+    }
+    Employee getEmployeeById( Long id){
+        if(id == null) return null;
+        return employeeRepository.findById(id)
+                .orElseThrow(()->new EmployeeNotFoundException(id));
+    }
+    TimeKeeping getTimeKeepingById(Long id){
+        return timeKeepingRepository.findById(id).orElseThrow(null);
+    }
+
 }

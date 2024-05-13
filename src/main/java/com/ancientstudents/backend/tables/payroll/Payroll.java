@@ -64,7 +64,8 @@ public class Payroll {
     @JsonSerialize(using = CustomDateSerializer.class)
     @JsonDeserialize(using = CustomDateDeserializer.class)
     private Date end;
-
+    @Enumerated(EnumType.STRING)
+    private PayrollStatus status;
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = CustomDateSerializer.class)
     @JsonDeserialize(using = CustomDateDeserializer.class)
@@ -84,3 +85,4 @@ enum EnumPayrollFrequency {
     BI_WEEKLY,
     WEEKLY
 }
+

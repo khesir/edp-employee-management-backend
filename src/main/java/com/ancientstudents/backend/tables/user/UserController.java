@@ -44,5 +44,4 @@ public class UserController {
         User user = userOptional.get(); // Extracting the user from Optional
         return ResponseEntity.ok(user); // Return user if found
     }
-
 }

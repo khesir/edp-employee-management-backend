@@ -28,7 +28,7 @@ public class TimeKeepingController {
     }
 
     @GetMapping("/time-keeping/{id}")
-    TimeKeeping getTimeKeeping(@PathVariable Long id){
+    TimeKeeping getTimeKeepingById(@PathVariable Long id){
         return timeKeepingRepository.findById(id).orElseThrow(null);
     }
 
